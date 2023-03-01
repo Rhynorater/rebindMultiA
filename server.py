@@ -92,7 +92,7 @@ def dns_response(data):
     TTL = 600
     try:
         request = DNSRecord.parse(data)
-    except dnslib.dns.DNSError:
+    except dns.DNSError:
         #malformed dns request
         reply = DNSRecord(DNSHeader(id=request.header.id, qr=1, aa=1, ra=1), q=request.q)
         return reply.pack()
