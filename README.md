@@ -4,7 +4,7 @@
 `rebindmultia.com` is a domain that I've set up to assist with these attacks. It makes every IP its own authoritative nameserver for the domain `[IP].ns.rebindmultia.com`. For example, `13.33.33.37.ns.rebindmultia.com`'s authoritative nameserver is `13.33.33.37.ip.rebindmultia.com` which resolves (as you might have guessed) to `13.33.33.37`. 
 
 ## Multiple A Record Rebind Attack
-A Multiple A Record is a variant of a DNS Rebinding attack that weaponizes an attacker's ability to respond with two IP address in response to a DNS request and the browser's tendency to fallback to the second IP in the DNS response when the first one doesn't respond. In this attack, the attacker will configure a malicious DNS server and two malicious HTTP servers. The DNS server will respond with two A records:
+The MultiA Record Rebind attack is a variant of DNS Rebinding that weaponizes an attacker's ability to respond with two IP address in response to a DNS request and the browser's tendency to fallback to the second IP in the DNS response when the first one doesn't respond. In this attack, the attacker will configure a malicious DNS server and two malicious HTTP servers. The DNS server will respond with two A records:
 ```
 127.0.0.1.target.13.33.33.37.ns.rebindmultia.com. 0 IN A 13.33.33.37
 127.0.0.1.target.13.33.33.37.ns.rebindmultia.com. 0 IN A 127.0.0.1
